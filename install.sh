@@ -2,9 +2,9 @@
 ## Oh My Zsh Installation Script for Arch, Debian, and Fedora based systems
 
 ## one line install:
-# sh -c "$(curl -fsSL https://raw.githubusercontent.com/zeevdukeman/ohmyzsh-install/main/install.sh)"
+# bash -c "$(curl -fsSL https://raw.githubusercontent.com/zeevdukeman/omz/main/install.sh)"
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_RAW_URL="https://raw.githubusercontent.com/zeevdukeman/omz/main"
 
 # if $ZSH exist, ask user if they want to unset it first
 if [ -n "$ZSH" ]; then
@@ -116,7 +116,10 @@ configure_ohmyzsh() {
 }
 
 post_installation() {
-    cp "$SCRIPT_DIR/ohmyz.zsh-theme" ~/.oh-my-zsh/themes/ohmyz.zsh-theme
+    curl -fsSL "$REPO_RAW_URL/ohmyz.zsh-theme" -o ~/.oh-my-zsh/themes/ohmyz.zsh-theme || {
+        echo "Failed to download ohmyz.zsh-theme. Exiting."
+        exit 1
+    }
     configure_ohmyzsh
 
     echo "Oh My Zsh has been configured with theme '$THEME' and plugins: ${PLUGINS[*]}"
