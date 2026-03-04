@@ -1,8 +1,10 @@
 #!/bin/bash
-## Oh My Zsh Installation Script FOR Arch, Debian, and Fedora based systems
+## Oh My Zsh Installation Script for Arch, Debian, and Fedora based systems
 
 ## one line install:
 # sh -c "$(curl -fsSL https://raw.githubusercontent.com/zeevdukeman/ohmyzsh-install/main/install.sh)"
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # if $ZSH exist, ask user if they want to unset it first
 if [ -n "$ZSH" ]; then
@@ -14,7 +16,6 @@ if [ -n "$ZSH" ]; then
     esac
 fi
 
-PKG_MANAGER=""
 THEME=""
 PLUGINS=()
 
@@ -23,26 +24,9 @@ set_defaults() {
     PLUGINS=("git" "z" "sudo" "extract" "history" "colored-man-pages" "zsh-autosuggestions" "zsh-syntax-highlighting")
 }
 
-# check_which_pkg_manager() {
-#     if command -v apt &> /dev/null; then
-#         PKG_MANAGER="apt"
-#     elif command -v pacman &> /dev/null; then
-#         PKG_MANAGER="pacman"
-#     elif command -v dnf &> /dev/null; then
-#         PKG_MANAGER="dnf"
-#     else
-#         echo "No supported package manager found (apt, pacman, or dnf). Exiting."
-#         exit 1
-#     fi
-# }
-# Configuration
 set_defaults
-#check_which_pkg_manager
 
 set_config() {
-    # read -p "Enter package manager (apt/pacman) [default: apt]: " input_pkg_manager
-    # PKG_MANAGER=${input_pkg_manager:-$PKG_MANAGER}
-
     read -p "Enter Oh My Zsh theme [default: $THEME]: " input_theme
     THEME=${input_theme:-$THEME}
 
@@ -53,18 +37,6 @@ set_config() {
     fi
 }
 
-# install_dependencies() {
-#     if [ "$PKG_MANAGER" = "apt" ]; then
-#         sudo apt update
-#         sudo apt install -y zsh curl git
-#     elif [ "$PKG_MANAGER" = "pacman" ]; then
-#         sudo pacman -Sy --noconfirm zsh curl git
-#     elif [ "$PKG_MANAGER" = "dnf" ]; then
-#         sudo dnf install -y zsh curl git
-#     fi
-# }
-
-#
 check_dependencies() {
     dependencies=(zsh curl git)
     missing_deps=()
@@ -82,6 +54,10 @@ check_dependencies() {
 install_ohmyzsh() {
     if [ ! -d "$HOME/.oh-my-zsh" ]; then
         sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+        if [ $? -ne 0 ]; then
+            echo "Failed to install Oh My Zsh. Exiting."
+            exit 1
+        fi
     fi
 }
 
@@ -91,87 +67,71 @@ change_default_shell() {
         return
     fi
 
-    if [ "$SHELL" != "$(which zsh)" ]; then
-        chsh -s "$(which zsh)"
+    if [ "$SHELL" != "$(command -v zsh)" ]; then
+        chsh -s "$(command -v zsh)"
     fi
 }
 
-
-# function to check if .zshrc contains those settings already and if not, add them
-
+# Check if .zshrc contains a setting already and if not, add it
 contain() {
-  local setting="$1"
-  local value="$2"
-  local target="$3"
-  local should_export=${4:-true}
-  if ! grep -q "^$setting=" "$target"; then
-    if [ "$should_export" = true ]; then
-      echo "export $setting=\"$value\"" >> "$target"
-    else
-      echo "$setting=\"$value\"" >> "$target"
+    local setting="$1"
+    local value="$2"
+    local target="$3"
+    local should_export=${4:-true}
+    if ! grep -q "^export ${setting}=\"" "$target" && ! grep -q "^${setting}=\"" "$target"; then
+        if [ "$should_export" = true ]; then
+            echo "export $setting=\"$value\"" >> "$target"
+        else
+            echo "$setting=\"$value\"" >> "$target"
+        fi
     fi
-  fi
 }
-
 
 configure_ohmyzsh() {
-  ZSHRC="$HOME/.zshrc"
-  ZSH="$HOME/.oh-my-zsh"
-  ZSH_THEME="ohmyz"
-  EDITOR=fresh
-  
-  plugins=(git z sudo extract history colored-man-pages zsh-autosuggestions zsh-syntax-highlighting)
+    ZSHRC="$HOME/.zshrc"
+    ZSH_DIR="$HOME/.oh-my-zsh"
+    ZSH_CUSTOM="${ZSH_CUSTOM:-$ZSH_DIR/custom}"
 
-  source $ZSH/oh-my-zsh.sh
-  
-  ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+    contain "ZSH" "$ZSH_DIR" "$ZSHRC"
+    contain "ZSH_THEME" "$THEME" "$ZSHRC"
 
-  contain "ZSH" "$ZSH" "$ZSHRC"
-  contain "ZSH_THEME" "$ZSH_THEME" "$ZSHRC"
-  contain "EDITOR" "$EDITOR" "$ZSHRC"
-  # Set theme
-  sed -i "s/^ZSH_THEME=.*/ZSH_THEME=\"$THEME\"/" "$HOME/.zshrc"
+    # Update theme and plugins in case they already exist
+    sed -i "s/^ZSH_THEME=.*/ZSH_THEME=\"$THEME\"/" "$ZSHRC"
+    sed -i "s/^export ZSH_THEME=.*/export ZSH_THEME=\"$THEME\"/" "$ZSHRC"
 
+    local plugins_line="plugins=(${PLUGINS[*]})"
+    sed -i "s/^plugins=.*/$plugins_line/" "$ZSHRC"
 
-
-
-
-
-  # Add plugins
-  local plugins_line="plugins=(${PLUGINS[*]})"
-  sed -i "s/^plugins=.*/$plugins_line/" "$HOME/.zshrc"
-
-  # Install additional plugins
-  if [[ " ${PLUGINS[@]} " =~ " zsh-autosuggestions " ]]; then
-    if [ ! -d "${ZSH_CUSTOM}/plugins/zsh-autosuggestions" ]; then
-      git clone https://github.com/zsh-users/zsh-autosuggestions "${ZSH_CUSTOM}/plugins/zsh-autosuggestions"
+    # Install additional plugins
+    if [[ " ${PLUGINS[*]} " =~ " zsh-autosuggestions " ]]; then
+        if [ ! -d "${ZSH_CUSTOM}/plugins/zsh-autosuggestions" ]; then
+            git clone https://github.com/zsh-users/zsh-autosuggestions "${ZSH_CUSTOM}/plugins/zsh-autosuggestions" || echo "Warning: failed to clone zsh-autosuggestions"
+        fi
     fi
-  fi
-  if [[ " ${PLUGINS[@]} " =~ " zsh-syntax-highlighting " ]]; then
-    if [ ! -d "${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting" ]; then
-      git clone https://github.com/zsh-users/zsh-syntax-highlighting "${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting"
+    if [[ " ${PLUGINS[*]} " =~ " zsh-syntax-highlighting " ]]; then
+        if [ ! -d "${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting" ]; then
+            git clone https://github.com/zsh-users/zsh-syntax-highlighting "${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting" || echo "Warning: failed to clone zsh-syntax-highlighting"
+        fi
     fi
-  fi
 }
-post_installation() {
-  cp ./ohmyz.zsh-theme ~/.oh-my-zsh/themes/ohmyz.zsh-theme
-  configure_ohmyzsh
-  
-  echo "Oh My Zsh has been configured with theme '$THEME' and plugins: ${PLUGINS[*]}"
 
-  echo "To apply changes, please restart your terminal or run 'source ~/.zshrc'."
+post_installation() {
+    cp "$SCRIPT_DIR/ohmyz.zsh-theme" ~/.oh-my-zsh/themes/ohmyz.zsh-theme
+    configure_ohmyzsh
+
+    echo "Oh My Zsh has been configured with theme '$THEME' and plugins: ${PLUGINS[*]}"
+    echo "To apply changes, please restart your terminal or run 'source ~/.zshrc'."
 }
 
 run_installation() {
-  echo "Starting installation..."
-  check_dependencies
-  change_default_shell
-  install_ohmyzsh
-  post_installation
-  echo "Installation complete! Please restart your terminal."
-  # press any key to exit
-  read -n 1 -s -r -p "Press any key to exit..."
-  exit 0
+    echo "Starting installation..."
+    check_dependencies
+    change_default_shell
+    install_ohmyzsh
+    post_installation
+    echo "Installation complete! Please restart your terminal."
+    read -n 1 -s -r -p "Press any key to exit..."
+    exit 0
 }
 
 set_config

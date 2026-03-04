@@ -4,7 +4,7 @@
 export VIRTUAL_ENV_DISABLE_PROMPT=1
 
 function virtualenv_info {
-    [ $VIRTUAL_ENV ] && echo '('%F{blue}`basename $VIRTUAL_ENV`%f') '
+    [ "$VIRTUAL_ENV" ] && echo '('%F{blue}`basename $VIRTUAL_ENV`%f') '
 }
 PR_GIT_UPDATE=1
 
@@ -55,7 +55,7 @@ zstyle ':vcs_info:*:prompt:*' formats       "${FMT_BRANCH}"
 zstyle ':vcs_info:*:prompt:*' nvcsformats   ""
 
 
-function steeef_preexec {
+function ohmyz_preexec {
     case "$2" in
         *git*)
             PR_GIT_UPDATE=1
@@ -68,14 +68,14 @@ function steeef_preexec {
             ;;
     esac
 }
-add-zsh-hook preexec steeef_preexec
+add-zsh-hook preexec ohmyz_preexec
 
-function steeef_chpwd {
+function ohmyz_chpwd {
     PR_GIT_UPDATE=1
 }
-add-zsh-hook chpwd steeef_chpwd
+add-zsh-hook chpwd ohmyz_chpwd
 
-function steeef_precmd {
+function ohmyz_precmd {
     if [[ -n "$PR_GIT_UPDATE" ]] ; then
         # check for untracked files or updated submodules, since vcs_info doesn't
         if git ls-files --other --exclude-standard 2> /dev/null | grep -q "."; then
@@ -90,9 +90,9 @@ function steeef_precmd {
         PR_GIT_UPDATE=
     fi
 }
-add-zsh-hook precmd steeef_precmd
+add-zsh-hook precmd ohmyz_precmd
 
-distrosign=$''
+distrosign=''
 if [ -n "$CONTAINER_ID" ]; then
        distrosign="%{%F{196}%}(distrobox)${PR_RST}"
 fi
