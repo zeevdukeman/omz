@@ -37,16 +37,49 @@ set_config() {
     fi
 }
 
-check_dependencies() {
-    dependencies=(zsh curl git)
-    missing_deps=()
+detect_pkg_manager() {
+    if command -v apt &> /dev/null; then
+        echo "apt"
+    elif command -v pacman &> /dev/null; then
+        echo "pacman"
+    elif command -v dnf &> /dev/null; then
+        echo "dnf"
+    else
+        echo ""
+    fi
+}
+
+install_dependencies() {
+    local dependencies=(zsh curl git)
+    local missing_deps=()
     for dep in "${dependencies[@]}"; do
         if ! command -v "$dep" &> /dev/null; then
             missing_deps+=("$dep")
         fi
     done
-    if [ ${#missing_deps[@]} -ne 0 ]; then
-        echo "The following dependencies are missing: ${missing_deps[*]}"
+
+    if [ ${#missing_deps[@]} -eq 0 ]; then
+        return
+    fi
+
+    echo "Missing dependencies: ${missing_deps[*]}"
+
+    local pkg_manager
+    pkg_manager=$(detect_pkg_manager)
+    if [ -z "$pkg_manager" ]; then
+        echo "No supported package manager found (apt, pacman, dnf). Please install manually: ${missing_deps[*]}"
+        exit 1
+    fi
+
+    echo "Installing ${missing_deps[*]} using $pkg_manager..."
+    case "$pkg_manager" in
+        apt)    sudo apt update && sudo apt install -y "${missing_deps[@]}" ;;
+        pacman) sudo pacman -Sy --noconfirm "${missing_deps[@]}" ;;
+        dnf)    sudo dnf install -y "${missing_deps[@]}" ;;
+    esac
+
+    if [ $? -ne 0 ]; then
+        echo "Failed to install dependencies. Exiting."
         exit 1
     fi
 }
@@ -128,7 +161,7 @@ post_installation() {
 
 run_installation() {
     echo "Starting installation..."
-    check_dependencies
+    install_dependencies
     change_default_shell
     install_ohmyzsh
     post_installation

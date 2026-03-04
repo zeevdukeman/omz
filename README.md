@@ -12,7 +12,7 @@ The installer will prompt you to choose a theme and plugins, with sensible defau
 
 ## What it does
 
-1. Checks that `zsh`, `curl`, and `git` are installed
+1. Installs `zsh`, `curl`, and `git` if missing (via apt, pacman, or dnf)
 2. Sets zsh as your default shell
 3. Installs Oh My Zsh (unattended)
 4. Installs the **ohmyz** custom theme
@@ -56,11 +56,9 @@ $
 
 ## Prerequisites
 
-Install these before running the installer:
+The installer automatically installs missing dependencies (`zsh`, `curl`, `git`) using your system's package manager. Supported package managers: `apt`, `pacman`, `dnf`.
 
-- **Arch:** `sudo pacman -S zsh curl git`
-- **Debian/Ubuntu:** `sudo apt install zsh curl git`
-- **Fedora:** `sudo dnf install zsh curl git`
+You'll need `sudo` access if any dependencies are missing.
 
 ## License
 
