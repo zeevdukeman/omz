@@ -5,7 +5,7 @@ One-line installer for [Oh My Zsh](https://ohmyz.sh/) with a custom theme and cu
 ## Install
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/zeevdukeman/omz/main/install.sh)"
+bash -c "$(curl -fsSL 'https://raw.githubusercontent.com/zeevdukeman/omz/main/install.sh?nocache=1')"
 ```
 
 The installer will prompt you to choose a theme and plugins, with sensible defaults pre-selected.
