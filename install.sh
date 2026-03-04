@@ -27,9 +27,18 @@ set_defaults() {
 set_defaults
 
 set_config() {
-    read -p "Enter Oh My Zsh theme [default: $THEME]: " input_theme
-    THEME=${input_theme:-$THEME}
+    echo ""
+    echo "Choose a theme:"
+    echo "  1) ohmyz (default) - compact prompt with timestamp"
+    echo "  2) ohmyz-classic   - colorful multi-word prompt"
+    echo ""
+    read -p "Enter choice [1]: " theme_choice
+    case "$theme_choice" in
+        2) THEME="ohmyz-classic" ;;
+        *) THEME="ohmyz" ;;
+    esac
 
+    echo ""
     echo "Enter plugins to install (space-separated) [default: ${PLUGINS[*]}]: "
     read -a input_plugins
     if [ ${#input_plugins[@]} -ne 0 ]; then
@@ -149,8 +158,9 @@ configure_ohmyzsh() {
 }
 
 post_installation() {
-    curl -fsSL "$REPO_RAW_URL/ohmyz.zsh-theme" -o ~/.oh-my-zsh/themes/ohmyz.zsh-theme || {
-        echo "Failed to download ohmyz.zsh-theme. Exiting."
+    local theme_file="${THEME}.zsh-theme"
+    curl -fsSL "$REPO_RAW_URL/$theme_file" -o ~/.oh-my-zsh/themes/"$theme_file" || {
+        echo "Failed to download $theme_file. Exiting."
         exit 1
     }
     configure_ohmyzsh

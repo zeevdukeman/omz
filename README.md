@@ -15,7 +15,7 @@ The installer will prompt you to choose a theme and plugins, with sensible defau
 1. Installs `zsh`, `curl`, and `git` if missing (via apt, pacman, or dnf)
 2. Sets zsh as your default shell
 3. Installs Oh My Zsh (unattended)
-4. Installs the **ohmyz** custom theme
+4. Lets you choose between the **ohmyz** and **ohmyz-classic** themes
 5. Configures `~/.zshrc` with your chosen theme and plugins
 6. Clones any third-party plugins that need it
 
@@ -32,9 +32,22 @@ The installer will prompt you to choose a theme and plugins, with sensible defau
 | zsh-autosuggestions | Fish-like command suggestions |
 | zsh-syntax-highlighting | Syntax highlighting for commands |
 
-## ohmyz theme
+## Themes
 
-A multi-line prompt with git integration, based on [steeef](https://github.com/ohmyzsh/ohmyzsh/blob/master/themes/steeef.zsh-theme).
+Both themes are based on [steeef](https://github.com/ohmyzsh/ohmyzsh/blob/master/themes/steeef.zsh-theme) with git integration, virtualenv display, distrobox indicator, and 256-color support.
+
+### ohmyz (default)
+
+Compact prompt with timestamp:
+
+```
+[14:30:05] user@hostname:~/projects/myrepo (main●●)
+>
+```
+
+### ohmyz-classic
+
+Colorful multi-word prompt:
 
 ```
 username at hostname in ~/projects/myrepo (main●●)
@@ -47,12 +60,6 @@ $
 - Orange dot: unstaged changes
 - Green dot: staged changes
 - Pink dot: untracked files
-
-### Additional features
-
-- Python virtualenv display
-- Distrobox container indicator
-- 256-color support with fallback
 
 ## Prerequisites
 

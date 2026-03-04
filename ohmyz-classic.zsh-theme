@@ -4,7 +4,7 @@
 export VIRTUAL_ENV_DISABLE_PROMPT=1
 
 function virtualenv_info {
-    [ $VIRTUAL_ENV ] && echo '('%F{blue}`basename $VIRTUAL_ENV`%f') '
+    [ "$VIRTUAL_ENV" ] && echo '('%F{blue}`basename $VIRTUAL_ENV`%f') '
 }
 PR_GIT_UPDATE=1
 
@@ -92,18 +92,11 @@ function ohmyz_precmd {
 }
 add-zsh-hook precmd ohmyz_precmd
 
-distrosign=$''
+distrosign=''
 if [ -n "$CONTAINER_ID" ]; then
-       distrosign="%F{26}(distrobox)${PR_RST}"
+       distrosign="%{%F{196}%}(distrobox)${PR_RST}"
 fi
-
-TIME_PROMPT="%F{240}[%*]${PR_RST}"
-
-USERNAME_PROMPT="%F{155}%n${PR_RST}"
-AT_PROMPT="%F{240}@${PR_RST}"
-HOSTNAME_PROMPT="%F{155}%m${PR_RST}"
-DIR_PROMPT="%F{240}:${PR_RST}%{%F{248}%}%~${PR_RST}"
-
 PROMPT=$'
-${TIME_PROMPT} ${USERNAME_PROMPT}${AT_PROMPT}${HOSTNAME_PROMPT}${DIR_PROMPT} $vcs_info_msg_0_$(virtualenv_info) ${distrosign}
-> '
+%{$purple%}%n${PR_RST} at %{$orange%}%m${PR_RST} in %{$limegreen%}%~${PR_RST} $vcs_info_msg_0_$(virtualenv_info) ${distrosign}
+$ '
+
