@@ -1,5 +1,5 @@
 #!/bin/bash
-## Oh My Zsh Installation Script for Arch, Debian, and Fedora based systems
+## Oh My Zsh Installation Script for Arch, Alpine, Debian, and Fedora based systems
 
 ## one line install:
 # bash -c "$(curl -fsSL https://raw.githubusercontent.com/zeevdukeman/omz/main/install.sh)"
@@ -49,6 +49,8 @@ set_config() {
 detect_pkg_manager() {
     if command -v apt &> /dev/null; then
         echo "apt"
+    elif command -v apk &> /dev/null; then
+        echo "apk"
     elif command -v pacman &> /dev/null; then
         echo "pacman"
     elif command -v dnf &> /dev/null; then
@@ -76,12 +78,13 @@ install_dependencies() {
     local pkg_manager
     pkg_manager=$(detect_pkg_manager)
     if [ -z "$pkg_manager" ]; then
-        echo "No supported package manager found (apt, pacman, dnf). Please install manually: ${missing_deps[*]}"
+        echo "No supported package manager found (apk, apt, pacman, dnf). Please install manually: ${missing_deps[*]}"
         exit 1
     fi
 
     echo "Installing ${missing_deps[*]} using $pkg_manager..."
     case "$pkg_manager" in
+        apk)    sudo apk update && sudo apk add --no-cache "${missing_deps[@]}" ;;
         apt)    sudo apt update && sudo apt install -y "${missing_deps[@]}" ;;
         pacman) sudo pacman -Sy --noconfirm "${missing_deps[@]}" ;;
         dnf)    sudo dnf install -y "${missing_deps[@]}" ;;

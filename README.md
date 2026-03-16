@@ -1,6 +1,6 @@
 # OMZ
 
-One-line installer for [Oh My Zsh](https://ohmyz.sh/) with a custom theme and curated plugins. Works on Arch, Debian, and Fedora based systems.
+One-line installer for [Oh My Zsh](https://ohmyz.sh/) with a custom theme and curated plugins. Works on Alpine, Arch, Debian, and Fedora based systems.
 
 ## Install
 
@@ -12,7 +12,7 @@ The installer will prompt you to choose a theme and plugins, with sensible defau
 
 ## What it does
 
-1. Installs `zsh`, `curl`, and `git` if missing (via apt, pacman, or dnf)
+1. Installs `zsh`, `curl`, and `git` if missing (via apk, apt, pacman, or dnf)
 2. Sets zsh as your default shell
 3. Installs Oh My Zsh (unattended)
 4. Lets you choose between the **ohmyz** and **ohmyz-classic** themes
@@ -63,7 +63,7 @@ $
 
 ## Prerequisites
 
-The installer automatically installs missing dependencies (`zsh`, `curl`, `git`) using your system's package manager. Supported package managers: `apt`, `pacman`, `dnf`.
+The installer automatically installs missing dependencies (`zsh`, `curl`, `git`) using your system's package manager. Supported package managers: `apk`, `apt`, `pacman`, `dnf`.
 
 You'll need `sudo` access if any dependencies are missing.
 
